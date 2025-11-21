@@ -27,12 +27,12 @@ jobs:
         
     - name: 3. Install Dependencies
       # 优先使用 npm ci（Clean Install）来确保环境干净和快速安装
-      run: npm ci 
+      run: npm install
 
     - name: 4. Clean and Generate Hexo Static Files
       run: |
         # 确保 Hexo-cli 可用，如果没有全局安装，此行可省略或使用 npx hexo...
-        # npm install -g hexo-cli 
+        npm install -g hexo-cli 
         
         # 清理旧的 public 目录
         npx hexo clean 
