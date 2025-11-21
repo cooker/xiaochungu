@@ -1,0 +1,66 @@
+name: Custom Hexo Deployment via HTTP POST
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build_and_upload:
+    runs-on: ubuntu-latest
+
+    # 移除 permissions 和 environment 配置，因为不再部署到 GitHub Pages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Generate static files (Hexo Build)
+        run: yarn run build
+
+      - name: Debug Check 'public' directory contents and size
+        run: |
+          echo "Listing contents of public directory:"
+          ls -la public
+          echo "Calculating total size of public directory:"
+          du -sh public
+
+      - name: Install zip utility
+        # 确保系统有 zip 命令
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Compress contents of 'public' directory to ZIP
+        id: compress
+        # 切换到 public 目录，压缩所有内容（. 表示当前目录下的所有文件和子目录），
+        # 然后将 ZIP 文件保存到上级目录，确保 ZIP 包内不包含顶层 public/ 目录。
+        run: |
+          cd public
+          # 检查目录是否为空，如果为空，此命令会报错，但在 Actions 中默认不会失败，所以我们依赖 ls/du 调试信息
+          zip -r ../deployment.zip .
+
+      - name: Upload deployment.zip via POST Request
+        id: upload
+        # 使用 curl 进行 POST 请求上传文件：
+        # -X POST: 指定请求方法
+        # -F "file=@deployment.zip": 以 multipart/form-data 格式上传文件，字段名为 'file'，文件名是 'deployment.zip'
+        # -v: 打印详细输出，便于调试
+        # -k: 如果目标是 HTTPS 但证书有问题，可以加上 -k 忽略证书校验
+        # --fail: 遇到 HTTP 错误时（如 4xx, 5xx）立即失败
+        run: |
+          echo "Starting upload to http://132.226.0.111:5000/"
+          curl --fail -X POST \
+               -F "file=@deployment.zip" \
+               http://132.226.0.111:5000/
+
+      - name: Cleanup compressed file (Optional)
+        if: always()
+        run: rm deployment.zip
