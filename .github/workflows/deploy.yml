@@ -1,57 +1,46 @@
-name: Deploy Hexo Blog to GitHub Pages
+name: Deploy Hexo to GitHub Pages
 
 on:
   push:
     branches:
-      - main # 🔴 注意：请修改为您的 Hexo 源码所在的分支 (可能是 main 或 master)
-  # 允许在 Actions 页面手动触发此工作流程
-  workflow_dispatch: 
+      - main
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 1. Checkout Source Code
-      uses: actions/checkout@v4
-      with:
-        # 必须设置 fetch-depth: 0 以获取完整的历史记录，方便部署工具操作
-        fetch-depth: 0 
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: 2. Setup Node.js Environment
-      uses: actions/setup-node@v4
-      with:
-        # 推荐使用 Node.js 的 LTS 版本
-        node-version: '22.14.0'
-        cache: 'npm'
-        
-    - name: 3. Install Dependencies
-      # 优先使用 npm ci（Clean Install）来确保环境干净和快速安装
-      run: npm install
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'yarn'
 
-    - name: 4. Clean and Generate Hexo Static Files
-      run: |
-        # 确保 Hexo-cli 可用，如果没有全局安装，此行可省略或使用 npx hexo...
-        npm install -g hexo-cli 
-        
-        # 清理旧的 public 目录
-        npx hexo clean 
-        
-        # 生成静态文件到 public 目录
-        npx hexo generate 
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-    - name: 5. Deploy to GitHub Pages
-      # 使用 peaceiris/actions-gh-pages 这个热门的部署 Action
-      uses: peaceiris/actions-gh-pages@v3 
-      with:
-        # GitHub 提供的秘密令牌，拥有写入权限
-        github_token: ${{ secrets.GITHUB_TOKEN }} 
-        
-        # 部署的目标分支（通常是 gh-pages）
-        publish_branch: gh-pages 
-        
-        # Hexo 生成的静态文件目录
-        publish_dir: ./public 
-        
-        # 自定义部署的 Git 提交信息
-        commit_message: ${{ github.event.head_commit.message }}
+      - name: Generate static files
+        run: yarn run build
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
