@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         # 推荐使用 Node.js 的 LTS 版本
-        node-version: '20' 
+        node-version: '22.14.0'
         cache: 'npm'
         
     - name: 3. Install Dependencies
