@@ -34,7 +34,9 @@ jobs:
       - name: Compress 'public' directory to ZIP
         id: compress
         # -r 递归压缩目录； -9 启用最高压缩比
-        run: zip -r deployment.zip public/
+        run: |
+          cd public
+          zip -r ../deployment.zip .
 
       - name: Upload deployment.zip via POST Request
         id: upload
