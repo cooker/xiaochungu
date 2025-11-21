@@ -27,7 +27,7 @@ jobs:
       - name: Generate static files (Hexo Build)
         run: yarn run build
 
-      - name: Debug: Check 'public' directory contents and size
+      - name: Debug Check 'public' directory contents and size
         run: |
           echo "Listing contents of public directory:"
           ls -la public
