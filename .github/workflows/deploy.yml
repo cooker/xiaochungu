@@ -27,15 +27,24 @@ jobs:
       - name: Generate static files (Hexo Build)
         run: yarn run build
 
+      - name: Debug: Check 'public' directory contents and size
+        run: |
+          echo "Listing contents of public directory:"
+          ls -la public
+          echo "Calculating total size of public directory:"
+          du -sh public
+
       - name: Install zip utility
         # 确保系统有 zip 命令
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Compress 'public' directory to ZIP
+      - name: Compress contents of 'public' directory to ZIP
         id: compress
-        # -r 递归压缩目录； -9 启用最高压缩比
+        # 切换到 public 目录，压缩所有内容（. 表示当前目录下的所有文件和子目录），
+        # 然后将 ZIP 文件保存到上级目录，确保 ZIP 包内不包含顶层 public/ 目录。
         run: |
           cd public
+          # 检查目录是否为空，如果为空，此命令会报错，但在 Actions 中默认不会失败，所以我们依赖 ls/du 调试信息
           zip -r ../deployment.zip .
 
       - name: Upload deployment.zip via POST Request
