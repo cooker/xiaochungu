@@ -1,8 +1,10 @@
 ---
 title: Apple ID 账号分享
+cover: https://gcore.jsdelivr.net/gh/cdn-x/xaoxuu@main/posts/20250706150531375.jpg
+poster:
+  topic: Apple ID 账号分享
+  headline: Apple ID 账号分享
 ---
-
-# Apple ID 账号分享
 
 #### 免费ID共享站
 
