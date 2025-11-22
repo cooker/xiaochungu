@@ -16,6 +16,7 @@ notebook_dir="$(dirname $script_file)"
 cd "$notebook_dir" && echoInfo "\n根路径：$(pwd)"
 
 echoInfo "\n待提交变更："
+
 git status
 
 echoInfo "\n开始提交变更："
@@ -24,4 +25,4 @@ git commit -m "Update by $(basename "$0") ."
 git push
 
 echoSuccess "\n已提交所有变更！"
-echoSuccess "\n详见GitHub: https://github.com/AndyM129/Notebook\n"
+echoSuccess "\n详见"
