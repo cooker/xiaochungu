@@ -1,8 +1,8 @@
 ---
-title: 美区账号分享
+title: Apple ID 账号分享
 ---
 
-# 美区账号分享
+# Apple ID 账号分享
 
 #### 免费ID共享站
 
